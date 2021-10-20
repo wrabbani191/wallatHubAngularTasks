@@ -5,18 +5,27 @@
  * * It should not allow rendering of html tags to prevent a security vulnerability (keep the inner text however)
  * * If the user enters a link in the content (ex : https://wallethub.com) it should become an anchor element when printed in the page 
  */
+
+/*
+1. Binded the textarea to a variable in TS.
+2. Used CSS style to display the input along with break lines and whitespaces.
+3. Adding an anchor tag in the text area input is making the tag as underlined and a 
+hyperlink, whereas, due to innerHTML property being used, the view is not updating on 
+input change.
+*/
 import { Component, NgModule  } from '@angular/core';
 import { RouterModule} from "@angular/router";
 import { CommonModule } from '@angular/common';
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector : 'ng-app',
     template : `
                 <h2>User Review:</h2>
-                <textarea class="textfield" placeholder="Write your Review" [value]="review_input"></textarea>
+                <textarea class="textfield" placeholder="Write your Review" [(ngModel)] = "review_input" (ngModelChange) = "updateValue()"></textarea>
                 <br/><br/>
                 <h3>Output:</h3>
-                <div class="output" [innerHTML]="review_content"></div>
+                <div class="output" [innerHTML]="review_content" style = "white-space: pre-wrap"></div>
                 `,
     styles : [
         `.textfield {
@@ -52,11 +61,23 @@ At https://wallethub.com <b>bolded text</b>`;
         this.review_content = this.review_input;
     }
 
+    updateValue()
+    {
+        this.review_content = this.review_input;
+        // let index = this.review_content.lastIndexOf('https:');
+        // let fIndex = this.review_content.lastIndexOf('.com');
+        // let tagUser = this.review_content.substr(index, fIndex);
+        // let linkTag = tagUser.split(' ')[0];
+        // console.log(linkTag);
+        // console.log(this.review_content.replace(linkTag, 'hello moto'));
+    }
+
 }
 
 @NgModule({
     imports : [
         CommonModule,
+        FormsModule,
         RouterModule.forChild([
             {
                 path : "",

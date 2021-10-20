@@ -4,7 +4,13 @@
  * * Spot the memory leak
  * 
  */
-import { Component, NgModule, Injectable, Input  } from '@angular/core';
+
+/* 
+1. Changed the ngAfterViewInit to ngAfterContentInit as the change was taking place after
+the view had been rendered.
+2. Unsubscribed the observable as the memory leak was happening due to this.
+*/
+import { Component, NgModule, Injectable, Input, OnInit, OnDestroy, AfterContentInit  } from '@angular/core';
 import { RouterModule, Router} from "@angular/router";
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
@@ -33,7 +39,7 @@ export class TestService {
                 `,
     styles : []
 })
-export class MainComponent {
+export class MainComponent implements OnInit, OnDestroy{
     test:string = null;
 
     constructor(private _srv:TestService) {
@@ -46,6 +52,11 @@ export class MainComponent {
             this.test = test;
         });
     }
+
+    ngOnDestroy()
+    {
+        this._srv.test.unsubscribe();
+    }
 }
 
 @Component({
@@ -53,7 +64,7 @@ export class MainComponent {
     template : `Sample Child component<br/> <button (click)="Next()">next test</button>`
     
 })
-export class TextChildComponent {
+export class TextChildComponent implements AfterContentInit{
     
     @Input('skip-current') skip = false;
 
@@ -65,7 +76,7 @@ export class TextChildComponent {
         this._router.navigate(["test-six"]);
     }
 
-    ngAfterViewInit() {
+    ngAfterContentInit() {
         if(this.skip) this._srv.SetTest("angular test #6");
     }
 
